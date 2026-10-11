@@ -5,7 +5,7 @@
   LLM_BASE_URL=... LLM_API_KEY=... LLM_MODEL=... python evolve.py
 
 Each generation: round robin -> everyone plays the NPC bot (the "it got smarter"
-number) -> the bottom half gets deleted and replaced by children of the top half.
+number) -> the bottom half is eliminated and replaced by children of the top half.
 Then `python report.py` builds the page.
 """
 import argparse
@@ -20,7 +20,7 @@ from game import NPCBot, play
 from storage import Store
 
 
-def aura(a):
+def points(a):
     return 100 * a.wins - 50 * a.losses + 10 * a.draws
 
 
@@ -92,11 +92,11 @@ def main():
             "avg_vs_npc": sum(rates.values()) / len(rates),
             "champion": champ.id,
             "standings": [{"id": a.id, "name": a.name, "wins": a.wins, "losses": a.losses,
-                           "draws": a.draws, "aura": aura(a), "vs_npc": rates[a.id]} for a in pop],
+                           "draws": a.draws, "points": points(a), "vs_npc": rates[a.id]} for a in pop],
         })
-        print(f"Gen {gen:>2} | avg W rate vs NPC {sum(rates.values()) / len(rates):.0%} | "
-              f"best {max(rates.values()):.0%} | champ: {champ.name} ({aura(champ):+} aura)")
-        if gen == 0:  # the gen-0 clown, for the "before" replay
+        print(f"Gen {gen:>2} | avg win rate vs NPC {sum(rates.values()) / len(rates):.0%} | "
+              f"best {max(rates.values()):.0%} | champ: {champ.name} ({points(champ):+} pts)")
+        if gen == 0:  # the weakest gen-0 bot, for the "before" replay
             clown = min(pop, key=lambda a: rates[a.id])
             store.data["replay_before"] = featured_game(clown, rng, decisive=False)
 
@@ -116,7 +116,7 @@ def main():
             names.add(child.name)
             store.agent(child)
             children.append(child)
-            print(f"   {loser.name} got deleted -> {child.name}: \"{child.trash_talk}\"")
+            print(f"   {loser.name} eliminated -> new bot {child.name}")
         pop = winners + children
 
     path = store.save()

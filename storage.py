@@ -43,6 +43,7 @@ class Store:
     def save(self, folder="runs"):
         Path(folder).mkdir(exist_ok=True)
         path = Path(folder) / f"{self.run_id}.json"
-        path.write_text(json.dumps(self.data, indent=1))
-        (Path(folder) / "latest.json").write_text(json.dumps(self.data, indent=1))
+        blob = json.dumps(self.data, indent=1)  # ensure_ascii keeps it 7-bit clean
+        path.write_text(blob, encoding="utf-8", newline="\n")
+        (Path(folder) / "latest.json").write_text(blob, encoding="utf-8", newline="\n")
         return path

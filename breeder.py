@@ -1,8 +1,8 @@
 """Breeding: a winner and a loser go in, a child comes out.
 
-LLM mode: the model is the league's unhinged coach. It reads both bots' genes and
-records and writes the child: new genes, a playbook, a name, a personality and
-trash talk. Mock mode (no API key): crossover + random mutation, for offline dev.
+LLM mode: the model acts as a coach. It reads both bots' genes and records and
+writes the child's genes, a short strategy note and a name. Mock mode (no API
+key): crossover + random mutation, for offline development.
 
 Env vars (any OpenAI-compatible endpoint, e.g. Luminal's):
   LLM_BASE_URL  (ends in /v1)   LLM_API_KEY   LLM_MODEL
@@ -12,7 +12,7 @@ import os
 import re
 import urllib.request
 
-from agents import GENES, NAMES, PERSONALITIES, Agent
+from agents import GENES, NAMES, Agent, play_style
 
 
 def llm_enabled():
@@ -31,33 +31,29 @@ def chat(messages, temperature=1.0):
 
 
 def describe(a):
-    return json.dumps({"name": a.name, "personality": a.personality,
+    return json.dumps({"name": a.name,
                        "record": {"wins": a.wins, "losses": a.losses, "draws": a.draws},
                        "genes": a.genes, "playbook": a.playbook}, indent=1)
 
 
-PROMPT = """You are the chronically online head coach of the Brainrot Chess League,
-where chess bots evolve. You talk in Gen Z / Gen Alpha brainrot (aura, mog, fanum tax,
-rizz, Ohio, sigma, cooked, no cap, fr fr, glazing, delulu, L + ratio) but your
-chess reasoning is actually smart. Keep it clean enough to show on a projector:
-no sexual slang, no slurs, no emojis, roast the bots not real people.
-
-Each bot scores every legal move with these weighted genes (about -1..1, chaos 0..1):
+PROMPT = """You are the coach of a league of evolving chess bots.
+Each bot scores every legal move with these weighted genes (about -1..1, randomness 0..1):
 {genes}
 
-THE W (keep what works):
+WINNER (keep what works):
 {winner}
 
-THE L (getting deleted, learn from its mistakes):
+LOSER (being replaced; learn from its mistakes):
 {loser}
 
-Breed a CHILD that would mog both. Think about which genes made the W win.
+Create a CHILD bot that should beat both. Reason about which genes caused the win.
+Write in plain, clear English. Only the name should be playful: give it a funny
+Gen Z / brainrot-style chess name (like "Skibidi Sicilian" or "Rizzler Rook"),
+max 3 words, clean enough for a projector, no emojis, not any of: {taken}.
 Reply ONLY with JSON:
 {{"genes": {{<every gene name>: number}},
-  "playbook": "<2 sentences, the child's actual strategy, in brainrot voice>",
-  "name": "<brainrot chess name, max 3 words, not any of: {taken}>",
-  "personality": "<short brainrot personality>",
-  "trash_talk": "<one line of PG-13 brainrot trash talk aimed at the L>"}}"""
+  "playbook": "<1-2 plain sentences: the child's strategy and why it should win>",
+  "name": "<name>"}}"""
 
 
 def clamp(genes, fallback):
@@ -67,7 +63,7 @@ def clamp(genes, fallback):
             v = float(genes.get(g, fallback[g]))
         except (TypeError, ValueError):
             v = fallback[g]
-        out[g] = round(max(0.0 if g == "chaos" else -1.5, min(1.5, v)), 3)
+        out[g] = round(max(0.0 if g == "randomness" else -1.5, min(1.5, v)), 3)
     return out
 
 
@@ -76,21 +72,9 @@ def breed_llm(winner, loser, generation, taken):
         genes="\n".join(f"- {k}: {v}" for k, v in GENES.items()),
         winner=describe(winner), loser=describe(loser), taken=", ".join(sorted(taken)[-40:]))}])
     d = json.loads(re.sub(r"^```(?:json)?|```$", "", raw.strip()).strip())
-    return Agent(clamp(d.get("genes", {}), winner.genes), str(d.get("name", "Unnamed Menace"))[:40],
-                 d.get("personality", winner.personality), generation, [winner.id, loser.id],
-                 d.get("playbook", ""), d.get("trash_talk", ""))
-
-
-MOCK_TALK = [
-    "{l} got deleted and the bloodline's aura went up 10000 fr",
-    "{l} really thought it was him. it was not him",
-    "rest in pieces {l}. literally. you hung all of them",
-    "got {w}'s rizz and none of {l}'s skill issue. built different",
-    "{l} played like it was their first day in Ohio",
-    "{l} said 'trust the process'. the process was getting fanum taxed",
-    "{l} is so cooked they're serving it at the dining hall",
-    "not me inheriting the W genes while {l} touches grass permanently",
-]
+    genes = clamp(d.get("genes", {}), winner.genes)
+    return Agent(genes, str(d.get("name", "Unnamed Bot"))[:40], play_style(genes), generation,
+                 [winner.id, loser.id], d.get("playbook", ""))
 
 
 def breed_mock(winner, loser, generation, taken, rng):
@@ -100,10 +84,8 @@ def breed_mock(winner, loser, generation, taken, rng):
     name = rng.choice([n for n in NAMES if n not in taken] or NAMES)
     if name in taken:
         name = f"{name.split(' Jr.')[0]} Jr. {generation}"
-    best = max((g for g in GENES if g != "chaos"), key=lambda g: genes[g])
-    return Agent(genes, name, rng.choice(PERSONALITIES), generation, [winner.id, loser.id],
-                 f"inherited {winner.name}'s aura and maxed out {best.replace('_', ' ')}. no cap.",
-                 rng.choice(MOCK_TALK).format(l=loser.name, w=winner.name))
+    return Agent(genes, name, play_style(genes), generation, [winner.id, loser.id],
+                 f"Child of {winner.name} (winner) and {loser.name}, with small random mutations.")
 
 
 def breed(winner, loser, generation, taken, rng):

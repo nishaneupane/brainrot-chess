@@ -44,7 +44,7 @@ td.n small{display:block;color:var(--dim);font:400 13px/1.45 var(--body);margin-
 .aura{font:800 15px var(--display);white-space:nowrap}.aura.pos{color:var(--teal)}.aura.neg{color:var(--pink)}
 .bar{height:8px;background:var(--line);border-radius:4px;min-width:70px;margin-top:4px}
 .bar div{height:100%;border-radius:4px;background:var(--teal)}
-.trash{color:var(--dim);font-style:italic;font-size:14px;min-width:200px}
+.trash{color:var(--dim);font-size:14px;min-width:200px}
 .grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
 @media(max-width:820px){.grid2{grid-template-columns:1fr}}
 .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
@@ -54,7 +54,8 @@ button{font:700 15px var(--display);background:var(--pink);color:#1a0f0f;border:
 .who{font-size:14px;color:var(--dim);margin-bottom:10px}.who b{color:var(--ink);font-family:var(--display)}
 .stage{display:flex;gap:16px;flex-wrap:wrap}
 .board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:min(100%,360px);aspect-ratio:1;border:4px solid #000;border-radius:6px;overflow:hidden;flex:none}
-.sq{min-height:0;display:flex;align-items:center;justify-content:center;font-size:min(8vw,34px);line-height:1;user-select:none;font-family:"Segoe UI Symbol","DejaVu Sans",sans-serif}
+.sq{min-height:0;display:flex;align-items:center;justify-content:center;font-size:min(8vw,34px);line-height:1;user-select:none;
+  font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","Noto Sans Symbols","DejaVu Sans","FreeSerif","Arial Unicode MS",sans-serif}
 .sq.l{background:var(--lt)}.sq.d{background:var(--dk)}
 .pw{color:var(--pink);text-shadow:0 2px 0 #0008}.pb{color:var(--teal);text-shadow:0 2px 0 #0008}
 .feed{flex:1 1 220px;min-width:0;height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;font-size:14px}
@@ -70,6 +71,27 @@ button{font:700 15px var(--display);background:var(--pink);color:#1a0f0f;border:
 .chain li:first-child:before{background:var(--pink);box-shadow:0 0 14px var(--pink)}
 .chain b{font-family:var(--display)}
 .chain small{color:var(--dim)}
+.views{display:flex;gap:10px;margin:0 0 20px;flex-wrap:wrap}
+.views button{background:var(--panel);color:var(--ink);border:2px solid var(--line);font-size:16px;padding:10px 18px}
+.views button.on{background:var(--teal);border-color:var(--teal);color:#0d1f1f;box-shadow:4px 4px 0 #0a0d0e}
+.picker{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+select{font:600 15px var(--body);background:var(--bg);color:var(--ink);border:2px solid var(--line);
+  border-radius:10px;padding:9px 10px;max-width:100%;flex:1 1 240px}
+.dossier{color:var(--dim);font-size:14px;margin:0 0 14px;min-height:21px}
+.dossier b{color:var(--ink);font-family:var(--display)}
+.sq.live{cursor:pointer}
+.sq.sel{box-shadow:inset 0 0 0 3px var(--pink)}
+.sq.prev{box-shadow:inset 0 0 0 3px #63b7b766}
+.sq.hint:after{content:"";width:28%;height:28%;border-radius:50%;background:#63b7b7aa;position:absolute}
+.sq.grab:after{display:none}
+.sq.grab{box-shadow:inset 0 0 0 3px var(--teal)}
+.sq{position:relative}
+.promo{display:flex;gap:6px;align-items:center;margin-top:10px;color:var(--dim);font-size:14px}
+.promo button{padding:4px 12px;font-size:18px}
+.note{background:var(--panel);border:2px dashed var(--line);border-radius:14px;padding:18px 20px;color:var(--dim)}
+.note code{color:var(--pink);font-size:14px}
+.verdict{font:800 17px var(--display);margin-top:10px}
+.verdict.win{color:var(--teal)}.verdict.lose{color:var(--pink)}.verdict.tie{color:var(--dim)}
 </style>
 </head>
 <body>
@@ -77,10 +99,16 @@ button{font:700 15px var(--display);background:var(--pink);color:#1a0f0f;border:
   <h1>Brainrot <em>Chess</em> League</h1>
   <p class="sub" id="sub"></p>
   <div class="ticker"><span id="ticker"></span></div>
+  <nav class="views" id="views">
+    <button class="on" data-view="report">League report</button>
+    <button data-view="arena">Play a bot</button>
+  </nav>
+
+  <section id="view-report">
   <div class="hero" id="hero"></div>
 
   <div class="card">
-    <h2>Aura went up <span class="sticker">no cap</span></h2>
+    <h2>Win rate vs NPC Bot</h2>
     <svg id="chart" viewBox="0 0 900 300" width="100%" role="img" aria-label="Win rate against the NPC bot by generation"></svg>
     <div class="legend"><span><i style="background:var(--pink)"></i>Best bot</span><span><i style="background:var(--teal)"></i>Average bot</span><span><i style="background:var(--dim)"></i>Coin flip (50%)</span></div>
   </div>
@@ -98,14 +126,45 @@ button{font:700 15px var(--display);background:var(--pink);color:#1a0f0f;border:
 
   <div class="grid2">
     <div class="card">
-      <h2>Aura leaderboard</h2>
+      <h2>Leaderboard</h2>
       <div class="tablewrap"><table id="lb"></table></div>
     </div>
     <div class="card">
-      <h2>Champion bloodline</h2>
+      <h2>Champion lineage</h2>
       <ul class="chain" id="tree"></ul>
     </div>
   </div>
+  </section>
+
+  <section id="view-arena" hidden>
+    <div class="note" id="offline" hidden>
+      <h2>The arena needs the local server</h2>
+      <p>You are looking at a saved copy of this page, which has no bot on the other
+      end of the board. Start the league locally and the arena comes alive:</p>
+      <p><code>python serve.py</code> &rarr; then open <code>http://127.0.0.1:8000</code></p>
+    </div>
+
+    <div class="card" id="arena" hidden>
+      <h2>Pick your opponent<span class="sticker">they bite</span></h2>
+      <div class="picker">
+        <select id="opp" aria-label="Opponent"></select>
+        <div class="tabs" id="side">
+          <button class="on" data-c="white">You play white</button>
+          <button data-c="black">You play black</button>
+        </div>
+        <button id="start">New game</button>
+      </div>
+      <p class="dossier" id="dossier"></p>
+      <div class="who" id="pwho"></div>
+      <div class="stage">
+        <div class="board" id="pboard"></div>
+        <div class="feed" id="pfeed"></div>
+      </div>
+      <div class="controls"><span id="pstatus"></span></div>
+      <div class="promo" id="promo" hidden></div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </section>
 </div>
 <script>
 const D = /*DATA*/null;
@@ -114,13 +173,13 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const first = D.gens[0], last = D.gens[D.gens.length - 1];
 
 document.getElementById("sub").textContent =
-  `${D.gens.length - 1} generations of chess bots fighting, dying and breeding. Only the ones with aura survive. Run ${D.run}.`;
-document.getElementById("ticker").textContent = D.board.filter(a => a.trash).map(a => `${a.name}: "${a.trash}"`).join("     /     ");
+  `${D.gens.length - 1} generations of evolving chess bots. Each generation the weakest half is replaced by offspring of the strongest, and every bot is tested against NPC Bot. Run ${D.run}.`;
+document.getElementById("ticker").textContent = D.board.map(a => `${a.name}: ${a.style}`).join("     /     ");
 document.getElementById("hero").innerHTML = [
-  [pct(first.avg), "avg W rate vs NPC, gen 0", ""],
-  [pct(last.avg), `avg W rate vs NPC, gen ${last.g}`, "hot"],
-  [D.deaths, "bots deleted", ""],
-  [D.board[0].name, "reigning champion", ""],
+  [pct(first.avg), "average win rate vs NPC Bot, gen 0", ""],
+  [pct(last.avg), `average win rate vs NPC Bot, gen ${last.g}`, "hot"],
+  [D.deaths, "bots eliminated", ""],
+  [D.board[0].name, "current champion", ""],
 ].map(([b, s, c]) => `<div class="stat ${c}"><b>${esc(b)}</b><small>${s}</small></div>`).join("");
 
 // chart
@@ -141,19 +200,19 @@ document.getElementById("hero").innerHTML = [
 // leaderboard
 const medal = i => i + 1;
 document.getElementById("lb").innerHTML =
-  `<tr><th></th><th>Bot</th><th>Aura</th><th>vs NPC</th><th>Trash talk</th></tr>` +
+  `<tr><th></th><th>Bot</th><th>Points</th><th>vs NPC</th><th>Strategy</th></tr>` +
   D.board.map((a, i) => `<tr><td class="rank">${medal(i)}</td>
-    <td class="n">${esc(a.name)}<small>gen ${a.gen} · ${esc(a.personality)}</small></td>
-    <td class="aura ${a.aura >= 0 ? "pos" : "neg"}">${a.aura >= 0 ? "+" : ""}${a.aura}<br><small style="color:var(--dim);font-weight:400">${a.wins}W ${a.losses}L ${a.draws}D</small></td>
+    <td class="n">${esc(a.name)}<small>gen ${a.gen} \u00B7 ${esc(a.style)}</small></td>
+    <td class="aura ${a.points >= 0 ? "pos" : "neg"}">${a.points >= 0 ? "+" : ""}${a.points}<br><small style="color:var(--dim);font-weight:400">${a.wins}W ${a.losses}L ${a.draws}D</small></td>
     <td>${pct(a.vs_npc)}<div class="bar"><div style="width:${pct(a.vs_npc)}"></div></div></td>
-    <td class="trash">${a.trash ? "“" + esc(a.trash) + "”" : ""}</td></tr>`).join("");
+    <td class="trash">${esc(a.playbook)}</td></tr>`).join("");
 
-// bloodline
+// lineage
 document.getElementById("tree").innerHTML = D.lineage.map(t =>
-  `<li><b>${esc(t.name)}</b> <small>gen ${t.gen}</small><br><small>${esc(t.personality)}</small><br><small>${esc(t.playbook)}</small></li>`).join("");
+  `<li><b>${esc(t.name)}</b> <small>gen ${t.gen}</small><br><small>${esc(t.style)}</small><br><small>${esc(t.playbook)}</small></li>`).join("");
 
 // replays
-const GLYPH = {k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟\uFE0E"};
+const GLYPH = {k:"\u265A",q:"\u265B",r:"\u265C",b:"\u265D",n:"\u265E",p:"\u265F\uFE0E"};
 const boardEl = document.getElementById("board"), feed = document.getElementById("feed");
 for (let i = 0; i < 64; i++) boardEl.insertAdjacentHTML("beforeend", `<div class="sq ${((i >> 3) + i) % 2 ? "d" : "l"}"></div>`);
 const sqs = [...boardEl.children];
@@ -168,7 +227,7 @@ let cur = 0, ply = 0, timer;
 function addLine(p) {
   const r = D.replays[cur], c = r.comments[p];
   if (!c && p !== r.sans.length - 1) return;
-  const num = Math.floor(p / 2) + 1 + (p % 2 ? "…" : ".");
+  const num = Math.floor(p / 2) + 1 + (p % 2 ? "\u2026" : ".");
   feed.insertAdjacentHTML("afterbegin", `<div class="${/MATE|QUEEN/.test(c) ? "big" : ""}"><b>${num} ${esc(r.sans[p])}</b>${esc(c || "game over")}</div>`);
 }
 function status() {
@@ -180,7 +239,7 @@ function load(i) {
   const r = D.replays[i];
   document.querySelectorAll(".tabs button").forEach((b, j) => b.classList.toggle("on", j === i));
   const res = r.winner ? `${esc(r.winner)} wins by ${esc(r.how)}` : esc(r.how);
-  document.getElementById("who").innerHTML = `<span style="color:var(--pink)">♟&#xFE0E;</span> <b>${esc(r.white)}</b> vs <span style="color:var(--teal)">♟&#xFE0E;</span> <b>${esc(r.black)}</b> · ${res}`;
+  document.getElementById("who").innerHTML = `<span style="color:var(--pink)">\u265F\uFE0E</span> <b>${esc(r.white)}</b> vs <span style="color:var(--teal)">\u265F\uFE0E</span> <b>${esc(r.black)}</b> \u00B7 ${res}`;
   draw(r.fens[0]); status();
 }
 document.getElementById("tabs").innerHTML = D.replays.map((r, i) => `<button>${esc(r.label)}</button>`).join("");
@@ -201,6 +260,162 @@ document.getElementById("skip").onclick = () => {
   draw(r.fens[ply]); status();
 };
 if (D.replays.length) load(D.replays.length - 1);
+
+// view switcher: the report, or the arena where you play the bots
+document.querySelectorAll("#views button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#views button").forEach(x => x.classList.toggle("on", x === b));
+  document.getElementById("view-report").hidden = b.dataset.view !== "report";
+  document.getElementById("view-arena").hidden = b.dataset.view !== "arena";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// arena: a real game against any bot the league ever bred (needs serve.py)
+(() => {
+  const el = id => document.getElementById(id);
+  const offline = el("offline"), arena = el("arena");
+  if (!D.live) { offline.hidden = false; return; }
+  arena.hidden = false;
+
+  const pboard = el("pboard"), pfeed = el("pfeed"), promo = el("promo");
+  for (let i = 0; i < 64; i++)
+    pboard.insertAdjacentHTML("beforeend", `<div class="sq ${((i >> 3) + i) % 2 ? "d" : "l"}"></div>`);
+  const cells = [...pboard.children];
+  let S = null, flip = false, sel = null, busy = false, roster = [], side = "white";
+
+  const sqName = n => "abcdefgh"[n % 8] + (8 - (n >> 3));
+  const natural = d => flip ? 63 - d : d;
+
+  function die(msg) {
+    arena.hidden = true;
+    offline.hidden = false;
+    offline.querySelector("h2").textContent = "Lost the server";
+    offline.querySelector("p").textContent = msg;
+  }
+
+  async function api(path, body) {
+    let r;
+    try {
+      r = await fetch(path, body ? {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+      } : {});
+    } catch (e) {
+      const dead = new Error("The local server stopped answering. Restart it and reload this page.");
+      dead.fatal = true;   // the server is gone, not just this request
+      throw dead;
+    }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || "The server turned that down.");
+    return j;
+  }
+
+  function paint() {
+    const pieces = Array(64).fill("");
+    let i = 0;
+    for (const ch of S.fen.replace(/\//g, "")) {
+      if (/\d/.test(ch)) i += +ch;
+      else pieces[i++] = `<span class="${ch === ch.toUpperCase() ? "pw" : "pb"}">${GLYPH[ch.toLowerCase()]}</span>`;
+    }
+    const hints = new Set(sel ? (S.moves[sel] || []).map(u => u.slice(2, 4)) : []);
+    cells.forEach((c, d) => {
+      const n = natural(d), sq = sqName(n);
+      c.innerHTML = pieces[n];
+      let cls = `sq ${((n >> 3) + n) % 2 ? "d" : "l"}`;
+      if (S.your_turn) cls += " live";
+      if (sq === sel) cls += " grab";
+      else if (hints.has(sq)) cls += pieces[n] ? " grab" : " hint";
+      else if (S.last && S.last.includes(sq)) cls += " prev";
+      c.className = cls;
+    });
+  }
+
+  function status() {
+    const mine = S.you, theirs = mine === "white" ? "black" : "white";
+    el("pwho").innerHTML = `<span style="color:var(--pink)">\u265F\uFE0E</span> <b>You</b> (${mine})`
+      + ` vs <span style="color:var(--teal)">\u265F\uFE0E</span> <b>${esc(S.bot)}</b> (${theirs})`;
+    const v = el("verdict");
+    if (S.over) {
+      const w = S.verdict.winner;
+      v.className = "verdict " + (w === "you" ? "win" : w === "bot" ? "lose" : "tie");
+      v.textContent = (w === "you" ? "You win" : w === "bot" ? `${S.bot} wins` : "Draw")
+        + ` by ${S.verdict.how}.`;
+      el("pstatus").textContent = `${Math.ceil(S.ply / 2)} moves played. Hit New game for a rematch.`;
+    } else {
+      v.className = "verdict"; v.textContent = "";
+      el("pstatus").textContent = (S.your_turn ? "Your move." : `${S.bot} is thinking...`)
+        + (S.check ? " You are in check." : "")
+        + `  move ${Math.floor(S.ply / 2) + 1} of ${S.cap / 2} before the judges decide on material.`;
+    }
+    pfeed.innerHTML = S.feed.map(f =>
+      `<div class="${/MATE|Checkmate/.test(f.text) ? "big" : ""}"><b>${esc(f.n)} ${esc(f.san)}</b>${esc(f.text || "")}</div>`
+    ).join("");
+  }
+
+  function show(state) {
+    S = state; sel = null; promo.hidden = true; paint(); status();
+  }
+
+  function askPromo(opts) {
+    promo.hidden = false;
+    promo.innerHTML = "Promote to:" + opts.map(u =>
+      `<button data-u="${u}">${GLYPH[u[4]]}</button>`).join("");
+    promo.querySelectorAll("button").forEach(b => b.onclick = () => send(b.dataset.u));
+  }
+
+  async function send(uci) {
+    if (busy) return;
+    busy = true; promo.hidden = true;
+    el("pstatus").textContent = `${S.bot} is thinking...`;
+    try { show(await api("/api/move", { game: S.game, uci })); }
+    catch (e) { e.fatal ? die(e.message) : (el("pstatus").textContent = e.message + " Hit New game."); }
+    finally { busy = false; }
+  }
+
+  pboard.onclick = e => {
+    const c = e.target.closest(".sq");
+    if (!c || !S || !S.your_turn || busy) return;
+    const sq = sqName(natural(cells.indexOf(c)));
+    if (sel) {
+      const opts = (S.moves[sel] || []).filter(u => u.slice(2, 4) === sq);
+      if (opts.length > 1) return askPromo(opts);
+      if (opts.length === 1) return send(opts[0]);
+    }
+    sel = (sq !== sel && S.moves[sq]) ? sq : null;
+    promo.hidden = true;
+    paint();
+  };
+
+  function dossier() {
+    const b = roster.find(x => x.id === el("opp").value);
+    if (!b) return;
+    el("dossier").innerHTML = `<b>${esc(b.name)}</b>`
+      + (b.gen === null ? "" : ` &mdash; generation ${b.gen}${b.champion ? ", former champion" : ""}`)
+      + `. ${esc(b.style)}. <i>${esc(b.playbook)}</i>`;
+  }
+
+  async function start() {
+    flip = side === "black";
+    el("pstatus").textContent = "Setting up the board...";
+    try { show(await api("/api/new", { opponent: el("opp").value, color: side })); }
+    catch (e) { e.fatal ? die(e.message) : (el("pstatus").textContent = e.message); }
+  }
+
+  document.querySelectorAll("#side button").forEach(b => b.onclick = () => {
+    document.querySelectorAll("#side button").forEach(x => x.classList.toggle("on", x === b));
+    side = b.dataset.c;
+  });
+  el("opp").onchange = dossier;
+  el("start").onclick = start;
+
+  api("/api/roster").then(r => {
+    roster = r.roster;
+    el("opp").innerHTML = roster.map(b => `<option value="${b.id}">`
+      + esc(b.gen === null ? b.name : `Gen ${b.gen} - ${b.name}${b.rank === 0 ? " (champion)" : ""}`)
+      + `</option>`).join("");
+    el("opp").value = (roster.find(b => b.rank === 0) || roster[0]).id;
+    dossier();
+    start();
+  }).catch(e => die(e.message));
+})();
 </script>
 </body>
 </html>
