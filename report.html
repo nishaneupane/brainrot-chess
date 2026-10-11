@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brainrot Chess League</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,700;0,800;0,900;1,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1214;--panel:#171c1f;--line:#2a3236;--ink:#63b7b7;--dim:#8fa9a9;--pink:#F88484;--teal:#63b7b7;--lt:#24393b;--dk:#172426;
+  --display:"Montserrat",system-ui,sans-serif;--body:"Inter",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);
+  background-image:radial-gradient(circle at 12% 0%,#F8848426,transparent 42%),radial-gradient(circle at 92% 18%,#63b7b71f,transparent 42%)}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 64px}
+h1,h2{font-family:var(--display);margin:0}
+h1{font-size:clamp(36px,7vw,72px);font-weight:900;line-height:.95;letter-spacing:-.02em;transform:rotate(-1.5deg);color:var(--teal);text-shadow:4px 4px 0 #0a0d0e}
+h1 em{font-style:normal;color:var(--pink)}
+h2{font-size:21px;font-weight:800;margin-bottom:14px}
+.sub{color:var(--dim);margin:14px 0 18px}
+.ticker{overflow:hidden;white-space:nowrap;background:var(--pink);color:#1a0f0f;font:700 15px var(--display);padding:8px 0;margin:0 -16px 24px;transform:rotate(.6deg)}
+.ticker span{display:inline-block;padding-left:100%;animation:tick 60s linear infinite}
+@keyframes tick{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.ticker span{animation:none;padding-left:16px}}
+.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:760px){.hero{grid-template-columns:1fr 1fr}}
+.stat{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat b{display:block;font:900 34px/1.1 var(--display);overflow-wrap:anywhere}
+.stat small{color:var(--dim)}
+.stat.hot{border-color:var(--pink);box-shadow:5px 5px 0 var(--pink)}
+.stat.hot b{color:var(--pink)}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:20px;margin-bottom:20px}
+.sticker{display:inline-block;background:var(--teal);color:#0d1f1f;font:800 12px var(--display);padding:3px 8px;border-radius:999px;transform:rotate(-4deg);margin-left:8px;vertical-align:middle}
+svg text{fill:var(--dim);font:12px var(--body)}
+.legend{display:flex;flex-wrap:wrap;gap:18px;color:var(--dim);font-size:14px;margin-top:6px}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;color:var(--dim);font:500 12px var(--display);text-transform:uppercase;letter-spacing:.06em;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.rank{font:900 18px var(--display)}
+td.n{font:700 15px var(--display);min-width:170px}
+td.n small{display:block;color:var(--dim);font:400 13px/1.45 var(--body);margin-top:2px}
+.aura{font:800 15px var(--display);white-space:nowrap}.aura.pos{color:var(--teal)}.aura.neg{color:var(--pink)}
+.bar{height:8px;background:var(--line);border-radius:4px;min-width:70px;margin-top:4px}
+.bar div{height:100%;border-radius:4px;background:var(--teal)}
+.trash{color:var(--dim);font-style:italic;font-size:14px;min-width:200px}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tabs button{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.tabs button.on{background:var(--pink);border-color:var(--pink);color:#1a0f0f}
+button{font:700 15px var(--display);background:var(--pink);color:#1a0f0f;border:0;border-radius:10px;padding:8px 14px;cursor:pointer}
+.who{font-size:14px;color:var(--dim);margin-bottom:10px}.who b{color:var(--ink);font-family:var(--display)}
+.stage{display:flex;gap:16px;flex-wrap:wrap}
+.board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:min(100%,360px);aspect-ratio:1;border:4px solid #000;border-radius:6px;overflow:hidden;flex:none}
+.sq{min-height:0;display:flex;align-items:center;justify-content:center;font-size:min(8vw,34px);line-height:1;user-select:none;font-family:"Segoe UI Symbol","DejaVu Sans",sans-serif}
+.sq.l{background:var(--lt)}.sq.d{background:var(--dk)}
+.pw{color:var(--pink);text-shadow:0 2px 0 #0008}.pb{color:var(--teal);text-shadow:0 2px 0 #0008}
+.feed{flex:1 1 220px;min-width:0;height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.feed div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.feed div b{color:var(--teal);margin-right:6px;font-family:var(--display)}
+.feed .big{border-color:var(--pink);color:var(--pink)}
+.controls{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.controls span{color:var(--dim);font-size:14px}
+.chain{list-style:none;margin:0;padding:0}
+.chain li{position:relative;padding:0 0 14px 26px}
+.chain li:before{content:"";position:absolute;left:5px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--teal)}
+.chain li:not(:last-child):after{content:"";position:absolute;left:10px;top:20px;bottom:0;width:2px;background:var(--line)}
+.chain li:first-child:before{background:var(--pink);box-shadow:0 0 14px var(--pink)}
+.chain b{font-family:var(--display)}
+.chain small{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Brainrot <em>Chess</em> League</h1>
+  <p class="sub" id="sub"></p>
+  <div class="ticker"><span id="ticker"></span></div>
+  <div class="hero" id="hero"></div>
+
+  <div class="card">
+    <h2>Aura went up <span class="sticker">no cap</span></h2>
+    <svg id="chart" viewBox="0 0 900 300" width="100%" role="img" aria-label="Win rate against the NPC bot by generation"></svg>
+    <div class="legend"><span><i style="background:var(--pink)"></i>Best bot</span><span><i style="background:var(--teal)"></i>Average bot</span><span><i style="background:var(--dim)"></i>Coin flip (50%)</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Replays vs NPC Bot</h2>
+    <div class="tabs" id="tabs"></div>
+    <div class="who" id="who"></div>
+    <div class="stage">
+      <div class="board" id="board"></div>
+      <div class="feed" id="feed"></div>
+    </div>
+    <div class="controls"><button id="play">Play</button><button id="skip" style="background:var(--teal);color:#0d1f1f">Skip to end</button><span id="ply"></span></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Aura leaderboard</h2>
+      <div class="tablewrap"><table id="lb"></table></div>
+    </div>
+    <div class="card">
+      <h2>Champion bloodline</h2>
+      <ul class="chain" id="tree"></ul>
+    </div>
+  </div>
+</div>
+<script>
+const D = {"run": "run-20261011-152355", "gens": [{"g": 0, "avg": 0.3125, "best": 0.95}, {"g": 1, "avg": 0.51875, "best": 0.95}, {"g": 2, "avg": 0.65625, "best": 1.0}, {"g": 3, "avg": 0.8625, "best": 0.95}, {"g": 4, "avg": 0.80625, "best": 0.95}, {"g": 5, "avg": 0.90625, "best": 0.95}, {"g": 6, "avg": 0.9125, "best": 1.0}, {"g": 7, "avg": 0.88125, "best": 1.0}, {"g": 8, "avg": 0.93125, "best": 1.0}, {"g": 9, "avg": 0.84375, "best": 1.0}, {"g": 10, "avg": 0.8375, "best": 1.0}, {"g": 11, "avg": 0.875, "best": 1.0}, {"g": 12, "avg": 0.80625, "best": 1.0}], "board": [{"id": "141945ec", "name": "Skibidi Sicilian Jr. 11", "wins": 4, "losses": 0, "draws": 10, "aura": 500, "vs_npc": 0.65, "personality": "permanently low on time, premoves everything", "trash": "got Sigma Gambit Jr. 5's rizz and none of No Cap Caro-Kann Jr. 8's skill issue. built different", "gen": 11}, {"id": "067fa02d", "name": "Sigma Gambit Jr. 5", "wins": 6, "losses": 3, "draws": 5, "aura": 500, "vs_npc": 0.95, "personality": "mewing through the whole game, refuses to blink", "trash": "not me inheriting the W genes while Lowkey Lasker touches grass permanently", "gen": 5}, {"id": "06165150", "name": "Gigachad Pawn Jr. 12", "wins": 4, "losses": 1, "draws": 9, "aura": 440, "vs_npc": 0.75, "personality": "certified hater, trash talks the board itself", "trash": "Delulu Defense Jr. 4 is so cooked they're serving it at the dining hall", "gen": 12}, {"id": "9cbf5af6", "name": "Aura Farmer Jr. 10", "wins": 3, "losses": 2, "draws": 9, "aura": 290, "vs_npc": 1.0, "personality": "Ohio final boss energy", "trash": "rest in pieces Sus Castle Jr. 9. literally. you hung all of them", "gen": 10}, {"id": "97ddae8f", "name": "Yapper Queen Jr. 11", "wins": 2, "losses": 1, "draws": 11, "aura": 260, "vs_npc": 0.8, "personality": "chronically online, 9000 hours of bullet chess", "trash": "Fanum Tax Bishop Jr. 10 played like it was their first day in Ohio", "gen": 11}, {"id": "1ec6f3e7", "name": "Fanum Tax Bishop Jr. 12", "wins": 1, "losses": 2, "draws": 11, "aura": 110, "vs_npc": 0.6, "personality": "sigma grindset, wakes up at 4am to analyze the Sicilian", "trash": "not me inheriting the W genes while Sigma Gambit Jr. 11 touches grass permanently", "gen": 12}, {"id": "03375c06", "name": "Brainrot Bongcloud Jr. 12", "wins": 1, "losses": 5, "draws": 8, "aura": -70, "vs_npc": 0.8, "personality": "pure aura farmer, every move is for the edit", "trash": "Yapper Queen Jr. 11 II played like it was their first day in Ohio", "gen": 12}, {"id": "29b701a6", "name": "Erm Actually En Passant Jr. 12", "wins": 2, "losses": 9, "draws": 3, "aura": -220, "vs_npc": 0.9, "personality": "sigma grindset, wakes up at 4am to analyze the Sicilian", "trash": "Brainrot Bongcloud Jr. 9 said 'trust the process'. the process was getting fanum taxed", "gen": 12}], "lineage": [{"name": "Skibidi Sicilian Jr. 11", "gen": 11, "personality": "permanently low on time, premoves everything", "playbook": "inherited Sigma Gambit Jr. 5's aura and maxed out mate hunter. no cap."}, {"name": "Sigma Gambit Jr. 5", "gen": 5, "personality": "mewing through the whole game, refuses to blink", "playbook": "inherited Delulu Defense Jr. 4's aura and maxed out king safety. no cap."}, {"name": "Delulu Defense Jr. 4", "gen": 4, "personality": "certified hater, trash talks the board itself", "playbook": "inherited Big Back Blunder's aura and maxed out activity. no cap."}, {"name": "Big Back Blunder", "gen": 2, "personality": "Ohio final boss energy", "playbook": "inherited Erm Actually En Passant's aura and maxed out activity. no cap."}, {"name": "Erm Actually En Passant", "gen": 0, "personality": "mewing through the whole game, refuses to blink", "playbook": "no thoughts. head empty. vibes only."}], "deaths": 48, "games": 936, "replays": [{"label": "Gen 0 clown", "white": "Gigachad Pawn", "black": "NPC Bot", "winner": "NPC Bot", "how": "checkmate", "fens": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR", "rnbqkb1r/pppppppp/5n2/8/8/2N5/PPPPPPPP/R1BQKBNR", "rnbqkb1r/pppppppp/5n2/8/4N3/8/PPPPPPPP/R1BQKBNR", "rnbqkb1r/pppppppp/8/8/4n3/8/PPPPPPPP/R1BQKBNR", "rnbqkb1r/pppppppp/8/8/4n3/1P6/P1PPPPPP/R1BQKBNR", "rnbqkb1r/pppppppp/8/8/8/1P6/P1PPPnPP/R1BQKBNR", "rnbqkb1r/pppppppp/8/8/2P5/1P6/P2PPnPP/R1BQKBNR", "rnbqkb1r/pppppppp/8/8/2P5/1P6/P2PP1PP/R1BnKBNR", "rnbqkb1r/pppppppp/8/8/2P1P3/1P6/P2P2PP/R1BnKBNR", "rnbqkb1r/ppppp1pp/5p2/8/2P1P3/1P6/P2P2PP/R1BnKBNR", "rnbqkb1r/ppppp1pp/5p2/8/2P1P3/1P6/PB1P2PP/R2nKBNR", "rnbqkb1r/ppppp1pp/8/5p2/2P1P3/1P6/PB1P2PP/R2nKBNR", "rnbqkb1r/ppppp1pp/8/5p2/2P1P3/1P6/PB1P2PP/2RnKBNR", "rnbqkb1r/ppp1p1pp/8/3p1p2/2P1P3/1P6/PB1P2PP/2RnKBNR", "rnbqkb1r/ppp1p1pp/8/3p1p2/2P1P3/1PR5/PB1P2PP/3nKBNR", "rnbqkb1r/ppp1p1pp/8/3p1p2/2P1P3/1Pn5/PB1P2PP/4KBNR", "rnbqkb1r/ppp1p1pp/8/3p1p2/2P1P3/1PB5/P2P2PP/4KBNR", "rnbqkb1r/ppp1p1pp/8/3p4/2P1p3/1PB5/P2P2PP/4KBNR", "rnbqkb1r/ppp1p1Bp/8/3p4/2P1p3/1P6/P2P2PP/4KBNR", "rnbqk2r/ppp1p1bp/8/3p4/2P1p3/1P6/P2P2PP/4KBNR", "rnbqk2r/ppp1p1bp/8/3p4/2P1p3/1P5N/P2P2PP/4KB1R", "rnbqk2r/pp2p1bp/2p5/3p4/2P1p3/1P5N/P2P2PP/4KB1R", "rnbqk2r/pp2p1bp/2p5/3p4/2P1p3/1P5N/P2PB1PP/4K2R", "rnbqk2r/pp4bp/2p5/3pp3/2P1p3/1P5N/P2PB1PP/4K2R", "rnbqk2r/pp4bp/2p5/3pp3/2P1p3/1P5N/P2PB1PP/4K1R1", "rn1qk2r/pp4bp/2p5/3pp3/2P1p3/1P5b/P2PB1PP/4K1R1", "rn1qk2r/pp4bp/2p5/3pp3/2P1p3/1P3B1b/P2P2PP/4K1R1", "rn1qk2r/pp4bp/2p5/3pp3/2P5/1P3p1b/P2P2PP/4K1R1", "rn1qk2r/pp4bp/2p5/3pp3/2P5/1P3p1b/P2P2PP/4K2R", "rnbqk2r/pp4bp/2p5/3pp3/2P5/1P3p2/P2P2PP/4K2R", "rnbqk2r/pp4bp/2p5/3pp3/2P5/PP3p2/3P2PP/4K2R", "rnbqk2r/pp4bp/2p5/4p3/2p5/PP3p2/3P2PP/4K2R", "rnbqk2r/pp4bp/2p5/4p3/2p5/PP3P2/3P3P/4K2R", "rnb1k2r/pp4bp/2p5/4p3/2p5/PP3P2/3q3P/4K2R", "rnb1k2r/pp4bp/2p5/4p3/2p5/PP3P2/3K3P/7R", "rnb1k2r/pp4bp/2p5/4p3/8/Pp3P2/3K3P/7R", "rnb1k2r/pp4bp/2p5/4p3/8/Pp3P1P/3K4/7R", "rnb2rk1/pp4bp/2p5/4p3/8/Pp3P1P/3K4/7R", "rnb2rk1/pp4bp/2p5/4p3/8/PpK2P1P/8/7R", "rnb3k1/pp4bp/2p5/4p3/8/PpK2r1P/8/7R", "rnb3k1/pp4bp/2p5/4p3/8/Pp3r1P/1K6/7R", "rn4k1/pp1b2bp/2p5/4p3/8/Pp3r1P/1K6/7R", "rn4k1/pp1b2bp/2p5/4p3/8/Pp3r1P/1K6/5R2", "rn4k1/pp1b2bp/2p5/4p3/8/Pp5P/1K6/5r2", "rn4k1/pp1b2bp/2p5/4p3/8/PK5P/8/5r2", "rnb3k1/pp4bp/2p5/4p3/8/PK5P/8/5r2", "rnb3k1/pp4bp/2p5/4p3/K7/P6P/8/5r2", "rnb3k1/1p4bp/2p5/p3p3/K7/P6P/8/5r2", "rnb3k1/1p4bp/2p5/p3p3/8/PK5P/8/5r2", "rn4k1/1p4bp/2p5/p3p3/8/PK5b/8/5r2", "rn4k1/1p4bp/2p5/p3p3/8/P6b/1K6/5r2", "rn4k1/1p4b1/2p5/p3p2p/8/P6b/1K6/5r2", "rn4k1/1p4b1/2p5/p3p2p/8/P6b/2K5/5r2", "rn4k1/1p4b1/2p5/p3p2p/8/P6b/2K5/3r4", "rn4k1/1p4b1/2p5/p3p2p/P7/7b/2K5/3r4", "rn4k1/1p4b1/2p5/p3p2p/P7/7b/2Kr4/8", "rn4k1/1p4b1/2p5/p3p2p/P7/7b/3r4/2K5", "rn3k2/1p4b1/2p5/p3p2p/P7/7b/3r4/2K5", "rn3k2/1p4b1/2p5/p3p2p/P7/7b/3K4/8", "rn2k3/1p4b1/2p5/p3p2p/P7/7b/3K4/8", "rn2k3/1p4b1/2p5/p3p2p/P7/4K2b/8/8", "rn2kb2/1p6/2p5/p3p2p/P7/4K2b/8/8", "rn2kb2/1p6/2p5/p3p2p/P7/7b/4K3/8", "rn3b2/1p3k2/2p5/p3p2p/P7/7b/4K3/8", "rn3b2/1p3k2/2p5/p3p2p/P7/7b/3K4/8", "rn2kb2/1p6/2p5/p3p2p/P7/7b/3K4/8", "rn2kb2/1p6/2p5/p3p2p/P7/2K4b/8/8", "rn2kb2/1p6/2p5/p6p/P3p3/2K4b/8/8", "rn2kb2/1p6/2p5/p6p/P3p3/1K5b/8/8", "rn2kb2/1p6/2p5/p6p/P7/1K2p2b/8/8", "rn2kb2/1p6/2p5/p6p/P7/4p2b/2K5/8", "r3kb2/1p1n4/2p5/p6p/P7/4p2b/2K5/8", "r3kb2/1p1n4/2p5/p6p/P7/4p2b/8/3K4", "2r1kb2/1p1n4/2p5/p6p/P7/4p2b/8/3K4", "2r1kb2/1p1n4/2p5/p6p/P7/4p2b/4K3/8", "2r1kb2/1p6/2p5/p3n2p/P7/4p2b/4K3/8", "2r1kb2/1p6/2p5/p3n2p/P7/4p2b/8/4K3", "2r1k3/1p6/2p5/p1b1n2p/P7/4p2b/8/4K3", "2r1k3/1p6/2p5/p1b1n2p/P7/4p2b/8/3K4", "2r1k3/bp6/2p5/p3n2p/P7/4p2b/8/3K4", "2r1k3/bp6/2p5/p3n2p/P7/4p2b/2K5/8", "2rk4/bp6/2p5/p3n2p/P7/4p2b/2K5/8", "2rk4/bp6/2p5/p3n2p/P7/1K2p2b/8/8", "2r5/bp1k4/2p5/p3n2p/P7/1K2p2b/8/8", "2r5/bp1k4/2p5/p3n2p/P7/4p2b/1K6/8", "6r1/bp1k4/2p5/p3n2p/P7/4p2b/1K6/8", "6r1/bp1k4/2p5/p3n2p/P7/2K1p2b/8/8", "6r1/bp1k4/2p5/p6p/P5n1/2K1p2b/8/8", "6r1/bp1k4/2p5/p6p/P5n1/4p2b/1K6/8", "r7/bp1k4/2p5/p6p/P5n1/4p2b/1K6/8", "r7/bp1k4/2p5/p6p/P5n1/4p2b/K7/8", "r7/b2k4/2p5/pp5p/P5n1/4p2b/K7/8", "r7/b2k4/2p5/pp5p/P5n1/4p2b/1K6/8", "r7/b2k4/2p5/pp6/P5np/4p2b/1K6/8", "r7/b2k4/2p5/pp6/P5np/2K1p2b/8/8", "r7/b2k4/2p5/p7/p5np/2K1p2b/8/8", "r7/b2k4/2p5/p7/p1K3np/4p2b/8/8", "r7/b2k4/2p5/p3n3/p1K4p/4p2b/8/8", "r7/b2k4/2p5/p3n3/p6p/2K1p2b/8/8", "r7/b2k4/2p5/p7/p5np/2K1p2b/8/8", "r7/b2k4/2p5/p7/p5np/4p2b/2K5/8", "r1k5/b7/2p5/p7/p5np/4p2b/2K5/8", "r1k5/b7/2p5/p7/p5np/3Kp2b/8/8", "rk6/b7/2p5/p7/p5np/3Kp2b/8/8", "rk6/b7/2p5/p7/p1K3np/4p2b/8/8", "r7/b1k5/2p5/p7/p1K3np/4p2b/8/8", "r7/b1k5/2p5/p7/p5np/3Kp2b/8/8", "r7/b1k5/2p5/p7/p5np/3K3b/4p3/8", "r7/b1k5/2p5/p7/p5np/7b/2K1p3/8", "r7/b1k5/2p5/p7/p5np/8/2K1p1b1/8", "r7/b1k5/2p5/p7/p5np/2K5/4p1b1/8", "r7/b1k5/8/p1p5/p5np/2K5/4p1b1/8", "r7/b1k5/8/p1p5/p5np/8/2K1p1b1/8", "r2k4/b7/8/p1p5/p5np/8/2K1p1b1/8", "r2k4/b7/8/p1p5/p5np/8/4p1b1/2K5", "r2k4/b7/8/p1p5/p5np/8/4p3/2K4b", "r2k4/b7/8/p1p5/p5np/8/2K1p3/7b", "r2k4/b7/8/p7/p1p3np/8/2K1p3/7b", "r2k4/b7/8/p7/p1p3np/8/3Kp3/7b", "r2k4/b7/8/p7/p5np/2p5/3Kp3/7b", "r2k4/b7/8/p7/p5np/2p5/2K1p3/7b", "r2k4/b7/8/p7/p6p/2p1n3/2K1p3/7b", "r2k4/b7/8/p7/p6p/2p1n3/4p3/1K5b", "r7/b2k4/8/p7/p6p/2p1n3/4p3/1K5b", "r7/b2k4/8/p7/p6p/2p1n3/4p3/2K4b", "r7/b2k4/8/p7/p6p/2p1n3/8/2K1q2b"], "sans": ["Nc3", "Nf6", "Ne4", "Nxe4", "b3", "Nxf2", "c4", "Nxd1", "e4", "f6", "Bb2", "f5", "Rc1", "d5", "Rc3", "Nxc3", "Bxc3", "fxe4", "Bxg7", "Bxg7", "Nh3", "c6", "Be2", "e5", "Rg1", "Bxh3", "Bf3", "exf3", "Rh1", "Bc8", "a3", "dxc4", "gxf3", "Qxd2+", "Kxd2", "cxb3", "h3", "O-O", "Kc3", "Rxf3+", "Kb2", "Bd7", "Rf1", "Rxf1", "Kxb3", "Bc8", "Ka4", "a5", "Kb3", "Bxh3", "Kb2", "h5", "Kc2", "Rd1", "a4", "Rd2+", "Kc1", "Kf8", "Kxd2", "Ke8", "Ke3", "Bf8", "Ke2", "Kf7", "Kd2", "Ke8", "Kc3", "e4", "Kb3", "e3", "Kc2", "Nd7", "Kd1", "Rc8", "Ke2", "Ne5", "Ke1", "Bc5", "Kd1", "Ba7", "Kc2", "Kd8", "Kb3", "Kd7", "Kb2", "Rg8", "Kc3", "Ng4", "Kb2", "Ra8", "Ka2", "b5", "Kb2", "h4", "Kc3", "bxa4", "Kc4", "Ne5+", "Kc3", "Ng4", "Kc2", "Kc8", "Kd3", "Kb8", "Kc4", "Kc7", "Kd3", "e2", "Kc2", "Bg2", "Kc3", "c5", "Kc2", "Kd8", "Kc1", "Bh1", "Kc2", "c4", "Kd2", "c3+", "Kc2", "Ne3+", "Kb1", "Kd7", "Kc1", "e1=Q#"], "comments": ["", "", "", "NPC Bot fanum taxed a horsey (+3 aura)", "", "", "", "NPC Bot FANUM TAXED THE QUEEN", "", "", "", "", "", "", "", "NPC Bot fanum taxed a castle (+5 aura)", "Gigachad Pawn fanum taxed a horsey (+3 aura)", "", "", "NPC Bot fanum taxed a pointy hat guy (+3 aura)", "", "", "", "", "", "NPC Bot fanum taxed a horsey (+3 aura)", "", "NPC Bot fanum taxed a pointy hat guy (+3 aura)", "", "", "", "", "", "NPC Bot is mogging the king rn", "Gigachad Pawn FANUM TAXED THE QUEEN", "", "", "NPC Bot castled. King said 'i'm not built for this' and dipped", "", "NPC Bot is mogging the king rn", "", "", "", "NPC Bot fanum taxed a castle (+5 aura)", "", "", "", "", "", "", "", "", "", "", "", "NPC Bot is mogging the king rn", "", "", "Gigachad Pawn fanum taxed a castle (+5 aura)", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "NPC Bot is mogging the king rn", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "NPC Bot is mogging the king rn", "", "NPC Bot is mogging the king rn", "", "", "", "pawn glow-up arc complete. queen unlocked / CHECKMATE. NPC Bot mogged the king. L + ratio + no rizz"]}, {"label": "Gen 12 champ", "white": "Skibidi Sicilian Jr. 11", "black": "NPC Bot", "winner": "Skibidi Sicilian Jr. 11", "how": "checkmate", "fens": ["rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R", "rnbqkbnr/1ppppppp/p7/8/8/5N2/PPPPPPPP/RNBQKB1R", "rnbqkbnr/1ppppppp/p7/8/8/2N2N2/PPPPPPPP/R1BQKB1R", "rnbqkbnr/2pppppp/pp6/8/8/2N2N2/PPPPPPPP/R1BQKB1R", "rnbqkbnr/2pppppp/pp6/4N3/8/2N5/PPPPPPPP/R1BQKB1R", "rnbqkb1r/2pppppp/pp5n/4N3/8/2N5/PPPPPPPP/R1BQKB1R", "rnbqkb1r/2pppppp/pp5n/8/8/2N2N2/PPPPPPPP/R1BQKB1R", "rnbqkb1r/2pppp1p/pp4pn/8/8/2N2N2/PPPPPPPP/R1BQKB1R", "rnbqkb1r/2pppp1p/pp4pn/4N3/8/2N5/PPPPPPPP/R1BQKB1R", "r1bqkb1r/2pppp1p/ppn3pn/4N3/8/2N5/PPPPPPPP/R1BQKB1R", "r1bqkb1r/2pppp1p/ppN3pn/8/8/2N5/PPPPPPPP/R1BQKB1R", "r1bqkbnr/2pppp1p/ppN3p1/8/8/2N5/PPPPPPPP/R1BQKB1R", "r1bNkbnr/2pppp1p/pp4p1/8/8/2N5/PPPPPPPP/R1BQKB1R", "r1bNkbnr/3ppp1p/pp4p1/2p5/8/2N5/PPPPPPPP/R1BQKB1R", "r1b1kbnr/3ppN1p/pp4p1/2p5/8/2N5/PPPPPPPP/R1BQKB1R", "r1b2bnr/3ppk1p/pp4p1/2p5/8/2N5/PPPPPPPP/R1BQKB1R", "r1b2bnr/3ppk1p/pp4p1/2pN4/8/8/PPPPPPPP/R1BQKB1R", "r4bnr/1b1ppk1p/pp4p1/2pN4/8/8/PPPPPPPP/R1BQKB1R", "r4bnr/1b1ppk1p/pN4p1/2p5/8/8/PPPPPPPP/R1BQKB1R", "r4bnr/3ppk1p/pN4p1/2p5/8/8/PPPPPPbP/R1BQKB1R", "r4bnr/3ppk1p/pN4p1/2p5/8/8/PPPPPPBP/R1BQK2R", "r4b1r/3ppk1p/pN3np1/2p5/8/8/PPPPPPBP/R1BQK2R", "B4b1r/3ppk1p/pN3np1/2p5/8/8/PPPPPP1P/R1BQK2R", "B4b1r/3p1k1p/pN2pnp1/2p5/8/8/PPPPPP1P/R1BQK2R", "B4b1r/3p1k1p/pN2pnp1/2p5/8/8/PPPPPP1P/R1BQ1RK1", "B4bnr/3p1k1p/pN2p1p1/2p5/8/8/PPPPPP1P/R1BQ1RK1", "B4bnr/3N1k1p/p3p1p1/2p5/8/8/PPPPPP1P/R1BQ1RK1", "B4bnr/3N1k2/p3p1pp/2p5/8/8/PPPPPP1P/R1BQ1RK1", "5bnr/3N1k2/p1B1p1pp/2p5/8/8/PPPPPP1P/R1BQ1RK1", "5bnr/3N1k2/p1B1p2p/2p3p1/8/8/PPPPPP1P/R1BQ1RK1", "5bnr/3N1k2/p3p2p/2p3p1/4B3/8/PPPPPP1P/R1BQ1RK1", "5bnr/3Nk3/p3p2p/2p3p1/4B3/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/p3p2p/2N3p1/4B3/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/4p2p/p1N3p1/4B3/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/2B1p2p/p1N3p1/8/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/2B1p2p/2N3p1/p7/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/4p2p/2N3p1/B7/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/7p/2N1p1p1/B7/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/2B4p/2N1p1p1/8/8/PPPPPP1P/R1BQ1RK1", "5bn1/4k2r/2B4p/2N1p1p1/8/8/PPPPPP1P/R1BQ1RK1", "5bn1/4k2r/7p/2N1p1p1/4B3/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/7p/2N1p1p1/4B3/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/7p/2NBp1p1/8/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/8/2NBp1pp/8/8/PPPPPP1P/R1BQ1RK1", "5bnr/4k3/8/2N1p1pp/4B3/8/PPPPPP1P/R1BQ1RK1", "5b1r/4k3/5n2/2N1p1pp/4B3/8/PPPPPP1P/R1BQ1RK1", "5b1r/4k3/2B2n2/2N1p1pp/8/8/PPPPPP1P/R1BQ1RK1", "7r/4k3/2B2n1b/2N1p1pp/8/8/PPPPPP1P/R1BQ1RK1", "7r/4k3/5n1b/2N1p1pp/8/5B2/PPPPPP1P/R1BQ1RK1", "7r/4k2n/7b/2N1p1pp/8/5B2/PPPPPP1P/R1BQ1RK1", "7r/4k2n/7b/2N1p1pB/8/8/PPPPPP1P/R1BQ1RK1", "3r4/4k2n/7b/2N1p1pB/8/8/PPPPPP1P/R1BQ1RK1", "3r4/4k2n/7b/2N1p1p1/8/5B2/PPPPPP1P/R1BQ1RK1", "8/4k2n/7b/2N1p1p1/8/5B2/PPPrPP1P/R1BQ1RK1", "8/4k2n/7b/2N1p1p1/8/5B2/PPPQPP1P/R1B2RK1", "8/4k2n/7b/2N1p3/6p1/5B2/PPPQPP1P/R1B2RK1", "8/4k2n/7Q/2N1p3/6p1/5B2/PPP1PP1P/R1B2RK1", "8/4k2n/7Q/2N1p3/8/5p2/PPP1PP1P/R1B2RK1", "8/4k2Q/8/2N1p3/8/5p2/PPP1PP1P/R1B2RK1", "5k2/7Q/8/2N1p3/8/5p2/PPP1PP1P/R1B2RK1", "5k2/8/7Q/2N1p3/8/5p2/PPP1PP1P/R1B2RK1", "8/5k2/7Q/2N1p3/8/5p2/PPP1PP1P/R1B2RK1", "8/5k2/4Q3/2N1p3/8/5p2/PPP1PP1P/R1B2RK1", "5k2/8/4Q3/2N1p3/8/5p2/PPP1PP1P/R1B2RK1", "5k2/8/4Q2B/2N1p3/8/5p2/PPP1PP1P/R4RK1"], "sans": ["Nf3", "a6", "Nc3", "b6", "Ne5", "Nh6", "Nf3", "g6", "Ne5", "Nc6", "Nxc6", "Ng8", "Nxd8", "c5", "Nxf7", "Kxf7", "Nd5", "Bb7", "Nxb6", "Bxg2", "Bxg2", "Nf6", "Bxa8", "e6", "O-O", "Ng8", "Nxd7", "h6", "Bc6", "g5", "Be4", "Ke7", "Nxc5", "a5", "Bc6", "a4", "Bxa4", "e5", "Bc6", "Rh7", "Be4", "Rh8", "Bd5", "h5", "Be4", "Nf6", "Bc6", "Bh6", "Bf3", "Nh7", "Bxh5", "Rd8", "Bf3", "Rxd2", "Qxd2", "g4", "Qxh6", "gxf3", "Qxh7+", "Kf8", "Qh6+", "Kf7", "Qe6+", "Kf8", "Bh6#"], "comments": ["", "", "", "", "", "", "", "", "", "", "Skibidi Sicilian Jr. 11 fanum taxed a horsey (+3 aura)", "", "Skibidi Sicilian Jr. 11 FANUM TAXED THE QUEEN", "", "", "NPC Bot fanum taxed a horsey (+3 aura) / NPC Bot walking the king out early. absolute ohio behavior", "", "", "", "", "Skibidi Sicilian Jr. 11 fanum taxed a pointy hat guy (+3 aura)", "", "Skibidi Sicilian Jr. 11 fanum taxed a castle (+5 aura)", "", "Skibidi Sicilian Jr. 11 castled. King said 'i'm not built for this' and dipped", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Skibidi Sicilian Jr. 11 fanum taxed a castle (+5 aura)", "", "Skibidi Sicilian Jr. 11 fanum taxed a pointy hat guy (+3 aura)", "NPC Bot fanum taxed a pointy hat guy (+3 aura)", "Skibidi Sicilian Jr. 11 fanum taxed a horsey (+3 aura) / Skibidi Sicilian Jr. 11 is mogging the king rn", "", "Skibidi Sicilian Jr. 11 is mogging the king rn", "", "Skibidi Sicilian Jr. 11 is mogging the king rn", "", "CHECKMATE. Skibidi Sicilian Jr. 11 mogged the king. L + ratio + no rizz"]}]};
+const pct = x => Math.round(x * 100) + "%";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const first = D.gens[0], last = D.gens[D.gens.length - 1];
+
+document.getElementById("sub").textContent =
+  `${D.gens.length - 1} generations of chess bots fighting, dying and breeding. Only the ones with aura survive. Run ${D.run}.`;
+document.getElementById("ticker").textContent = D.board.filter(a => a.trash).map(a => `${a.name}: "${a.trash}"`).join("     /     ");
+document.getElementById("hero").innerHTML = [
+  [pct(first.avg), "avg W rate vs NPC, gen 0", ""],
+  [pct(last.avg), `avg W rate vs NPC, gen ${last.g}`, "hot"],
+  [D.deaths, "bots deleted", ""],
+  [D.board[0].name, "reigning champion", ""],
+].map(([b, s, c]) => `<div class="stat ${c}"><b>${esc(b)}</b><small>${s}</small></div>`).join("");
+
+// chart
+(() => {
+  const W = 900, H = 300, L = 44, R = 16, T = 12, B = 34, n = D.gens.length;
+  const x = i => L + (W - L - R) * (n === 1 ? 0 : i / (n - 1)), y = v => T + (H - T - B) * (1 - v);
+  let s = "";
+  for (const v of [0, .25, .5, .75, 1]) s += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#2a3236"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${pct(v)}</text>`;
+  D.gens.forEach((g, i) => { if (n < 16 || i % 2 === 0) s += `<text x="${x(i)}" y="${H-12}" text-anchor="middle">G${g.g}</text>`; });
+  s += `<line x1="${L}" x2="${W-R}" y1="${y(.5)}" y2="${y(.5)}" stroke="#8fa9a9" stroke-dasharray="5 5"/>`;
+  for (const [k, c] of [["best", "#F88484"], ["avg", "#63b7b7"]]) {
+    s += `<polyline fill="none" stroke="${c}" stroke-width="3" stroke-linejoin="round" points="${D.gens.map((g, i) => x(i) + "," + y(g[k])).join(" ")}"/>`;
+    D.gens.forEach((g, i) => s += `<circle cx="${x(i)}" cy="${y(g[k])}" r="4" fill="${c}"><title>Gen ${g.g} ${k}: ${pct(g[k])}</title></circle>`);
+  }
+  document.getElementById("chart").innerHTML = s;
+})();
+
+// leaderboard
+const medal = i => i + 1;
+document.getElementById("lb").innerHTML =
+  `<tr><th></th><th>Bot</th><th>Aura</th><th>vs NPC</th><th>Trash talk</th></tr>` +
+  D.board.map((a, i) => `<tr><td class="rank">${medal(i)}</td>
+    <td class="n">${esc(a.name)}<small>gen ${a.gen} · ${esc(a.personality)}</small></td>
+    <td class="aura ${a.aura >= 0 ? "pos" : "neg"}">${a.aura >= 0 ? "+" : ""}${a.aura}<br><small style="color:var(--dim);font-weight:400">${a.wins}W ${a.losses}L ${a.draws}D</small></td>
+    <td>${pct(a.vs_npc)}<div class="bar"><div style="width:${pct(a.vs_npc)}"></div></div></td>
+    <td class="trash">${a.trash ? "“" + esc(a.trash) + "”" : ""}</td></tr>`).join("");
+
+// bloodline
+document.getElementById("tree").innerHTML = D.lineage.map(t =>
+  `<li><b>${esc(t.name)}</b> <small>gen ${t.gen}</small><br><small>${esc(t.personality)}</small><br><small>${esc(t.playbook)}</small></li>`).join("");
+
+// replays
+const GLYPH = {k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟\uFE0E"};
+const boardEl = document.getElementById("board"), feed = document.getElementById("feed");
+for (let i = 0; i < 64; i++) boardEl.insertAdjacentHTML("beforeend", `<div class="sq ${((i >> 3) + i) % 2 ? "d" : "l"}"></div>`);
+const sqs = [...boardEl.children];
+function draw(fen) {
+  let i = 0;
+  for (const ch of fen.replace(/\//g, "")) {
+    if (/\d/.test(ch)) for (let k = 0; k < +ch; k++) sqs[i++].innerHTML = "";
+    else sqs[i++].innerHTML = `<span class="${ch === ch.toUpperCase() ? "pw" : "pb"}">${GLYPH[ch.toLowerCase()]}</span>`;
+  }
+}
+let cur = 0, ply = 0, timer;
+function addLine(p) {
+  const r = D.replays[cur], c = r.comments[p];
+  if (!c && p !== r.sans.length - 1) return;
+  const num = Math.floor(p / 2) + 1 + (p % 2 ? "…" : ".");
+  feed.insertAdjacentHTML("afterbegin", `<div class="${/MATE|QUEEN/.test(c) ? "big" : ""}"><b>${num} ${esc(r.sans[p])}</b>${esc(c || "game over")}</div>`);
+}
+function status() {
+  const r = D.replays[cur];
+  document.getElementById("ply").textContent = `move ${Math.ceil(ply / 2)} / ${Math.ceil(r.sans.length / 2)}`;
+}
+function load(i) {
+  clearInterval(timer); cur = i; ply = 0; feed.innerHTML = "";
+  const r = D.replays[i];
+  document.querySelectorAll(".tabs button").forEach((b, j) => b.classList.toggle("on", j === i));
+  const res = r.winner ? `${esc(r.winner)} wins by ${esc(r.how)}` : esc(r.how);
+  document.getElementById("who").innerHTML = `<span style="color:var(--pink)">♟&#xFE0E;</span> <b>${esc(r.white)}</b> vs <span style="color:var(--teal)">♟&#xFE0E;</span> <b>${esc(r.black)}</b> · ${res}`;
+  draw(r.fens[0]); status();
+}
+document.getElementById("tabs").innerHTML = D.replays.map((r, i) => `<button>${esc(r.label)}</button>`).join("");
+document.querySelectorAll(".tabs button").forEach((b, i) => b.onclick = () => load(i));
+document.getElementById("play").onclick = () => {
+  const r = D.replays[cur];
+  clearInterval(timer);
+  if (ply >= r.sans.length) { ply = 0; feed.innerHTML = ""; }
+  timer = setInterval(() => {
+    if (ply >= r.sans.length) return clearInterval(timer);
+    addLine(ply); ply++; draw(r.fens[ply]); status();
+  }, 220);
+};
+document.getElementById("skip").onclick = () => {
+  const r = D.replays[cur];
+  clearInterval(timer);
+  while (ply < r.sans.length) { addLine(ply); ply++; }
+  draw(r.fens[ply]); status();
+};
+if (D.replays.length) load(D.replays.length - 1);
+</script>
+</body>
+</html>
